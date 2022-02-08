@@ -6,6 +6,8 @@ from nltk.corpus import words
 import string
 import pandas as pd
 from tqdm import tqdm
+from wordfreq import word_frequency
+
 
 def wordleDatabase(f):
     alphabet=string.ascii_lowercase
@@ -26,8 +28,13 @@ def wordleDatabase(f):
 
         if word in setofwords:
             wordlist.append(word)
-    
+    wordfrequency=[]
+    for i in wordlist:
+        wordfrequency.append(word_frequency(i,'en'))   
+        
     df = pd.DataFrame(data=wordlist,columns=['word'])
+
+    df['freq']=wordfrequency
     df.to_csv(f,encoding='utf-8')
 
 
