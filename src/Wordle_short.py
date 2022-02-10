@@ -200,4 +200,6 @@ if __name__=="__main__":
         a.feedword(word[i],"crane")
         guesses.append(a.guesses)
         print(np.mean(guesses))
-
+    df = pd.DataFrame(data=guesses,columns=['guess'])
+    with open(ff+"/../database/guess_short.csv") as file:
+        df.to_csv(ff+"/../database/guess_short.csv",encoding='utf-8')    
