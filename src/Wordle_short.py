@@ -15,20 +15,18 @@ class Wordle(object):
 
     def __init__(self):
         self.ff = os.path.dirname(os.path.realpath(__file__))
-        self.f = "/../database/wordle.csv"
+        self.f = "/../database/wordle_short.csv"
         self.df=pd.read_csv(self.ff+self.f)
-        self.df=self.df.loc[self.df['freq']!=0.0].set_index('word')
+        self.df=self.df.set_index('word')
         self.word=self.df.index.tolist()
         self.guesses=0
 
     def feedword(self,feedword,initguess):
         self.answer=feedword
-        a=self.guessing(initguess)
-        return a
+        self.guessing(initguess)
     
     def guessing(self,initguess):
         self.guesses+=1
-        print(initguess)
         result=0
         for i, x in enumerate(initguess):
             if x==self.answer[i]:
@@ -192,6 +190,14 @@ class Wordle(object):
 
 
 if __name__=="__main__":
-    a=Wordle()
-    a.feedword("pause","crane")
+    ff = os.path.dirname(os.path.realpath(__file__))
+    f = "/../database/wordle_short.csv"
+    df=pd.read_csv(ff+f)
+    word=df['word'].values.tolist()
+    guesses=[]
+    for i in tqdm(range(len(word))):
+        a=Wordle()
+        a.feedword(word[i],"crane")
+        guesses.append(a.guesses)
+        print(np.mean(guesses))
 
