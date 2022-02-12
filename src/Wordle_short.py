@@ -18,7 +18,6 @@ class Wordle(object):
         self.f = "/../database/wordle_short.csv"
         self.df=pd.read_csv(self.ff+self.f)
         self.df=self.df.set_index('word')
-        self.word=self.df.index.tolist()
         self.guesses=0
 
     def feedword(self,feedword,initguess):
@@ -66,7 +65,7 @@ class Wordle(object):
             Entropyset.append(np.average(np.asarray(Entropylist)))
         '''
         df['entropy_distri']=Entropyset[0]
-        return df['entropy_distri'].idxmin()
+        return df['entropy_distri'].idxmax()
 
     def getentropy(self,word):
         df=self.df.copy()            
@@ -147,46 +146,31 @@ class Wordle(object):
 
     def letterSeq(self, letter, seq):
         wordseq=[]
-        for word in self.word:
+        for word in self.df.index.tolist():
             if letter==word[seq]:
-                if word not in wordseq:
-                    wordseq.append(word)
+                pass
             else:
                 self.df=self.df.drop(word)
-        self.word.clear()
-        for i in wordseq:
-            self.word.append(i)
 
     def letterRemain(self, letter):
         remove=[]
-        for word in self.word:
+        for word in self.df.index.tolist():
             if letter not in word:
-                if word not in remove:
-                    remove.append(word)
-        for i in remove:
-            self.word.remove(i)
-            self.df=self.df.drop(i)
+                self.df=self.df.drop(word)
 
 
     def letterNotSeq(self, letter, seq):
         remove=[]
-        for word in self.word:
+        for word in self.df.index.tolist():
             if letter==word[seq]:
-                if word not in remove:
-                    remove.append(word)
-        for i in remove:
-            self.word.remove(i)
-            self.df=self.df.drop(i)
+                self.df=self.df.drop(word)
 
     def letterRemove(self, letter):
         remove=[]
-        for word in self.word:
+        for word in self.df.index.tolist():
             if letter in word:
-                if word not in remove:
-                    remove.append(word)
-        for i in remove:
-            self.word.remove(i)
-            self.df=self.df.drop(i)
+                self.df=self.df.drop(word)
+
 
 
 if __name__=="__main__":
