@@ -18,30 +18,18 @@ class Wordle(object):
         self.f = "/../database/wordle_short.csv"
         self.df=pd.read_csv(self.ff+self.f)
         self.df=self.df.set_index('word')
-        self.guesses=0
 
-    def feedword(self,feedword,initguess):
-        self.answer=feedword
-        self.guessing(initguess)
     
-    def guessing(self,initguess):
-        self.guesses+=1
-        result=0
-        for i, x in enumerate(initguess):
-            if x==self.answer[i]:
-                self.letterSeq(x,i)
-            elif x!=self.answer[i] and x in self.answer:
-                self.letterRemain(x)
-                self.letterNotSeq(x,i)
-                result+=1
+    def guessing(self,initguess,answer):
+        for i, x in enumerate(answer):
+            if x=='g':
+                self.letterSeq(initguess[i],i)
+            elif x=='y':
+                self.letterRemain(initguess[i],i)
             else:
-                self.letterRemove(x)
-                result+=2
-        if result==0:
-            print("the guesses: %i" % self.guesses)
-            return self.guesses
+                self.letterRemove(initguess[i])
         word=self.sampling()
-        self.guessing(word)
+        print(word)
     
     def sampling(self):
         df=self.df.copy()
@@ -68,8 +56,8 @@ class Wordle(object):
         return df['entropy_distri'].idxmax()
 
     def getentropy(self,word):
-        df=self.df.copy()            
-        Entropylist=[]
+        df=self.df.copy()           
+        Entropie=0.0
         for j0 in range(3):
             for j1 in range(3):
                 for j2 in range(3):
@@ -78,16 +66,15 @@ class Wordle(object):
                             j=[j0,j1,j2,j3,j4]
                             dff=self.elimate(df,word,j)
                             if dff.shape[0]!=0:
-                                Entropylist.append(self.calculateEntropy(dff))
-        return np.average(np.asarray(Entropylist))
+                                Entropie += dff.shape[0]/df.shape[0]*math.log2(1/(dff.shape[0]/df.shape[0]))
+        return Entropie
     def elimate(self,dff,word,j):
         df = dff.copy()
         for i in range(len(j)):
             if j[i]==0:
                 df=self.letterSeqE(df,word[i],i)
             elif j[i]==1:
-                df=self.letterRemainE(df,word[i])
-                df=self.letterNotSeqE(df,word[i],i)
+                df=self.letterRemainE(df,word[i],i)
             else:
                 df=self.letterRemoveE(df,word[i])
         return df
@@ -119,20 +106,10 @@ class Wordle(object):
         #print(df.shape)
         return df
 
-    def letterRemainE(self, dff, letter):
+    def letterRemainE(self, dff, letter, seq):
         df=dff.copy()
-        remove=[]
         for word in df.index.tolist():
-            if letter not in word:
-                df=df.drop(word)
-        return df
-
-
-    def letterNotSeqE(self, dff, letter, seq):
-        df=dff.copy()
-        remove=[]
-        for word in df.index.tolist():
-            if letter==word[seq]:                
+            if letter not in word or letter == word[seq]:
                 df=df.drop(word)
         return df
 
@@ -152,17 +129,9 @@ class Wordle(object):
             else:
                 self.df=self.df.drop(word)
 
-    def letterRemain(self, letter):
-        remove=[]
+    def letterRemain(self, letter, seq):
         for word in self.df.index.tolist():
-            if letter not in word:
-                self.df=self.df.drop(word)
-
-
-    def letterNotSeq(self, letter, seq):
-        remove=[]
-        for word in self.df.index.tolist():
-            if letter==word[seq]:
+            if letter not in word or letter==word[seq]:
                 self.df=self.df.drop(word)
 
     def letterRemove(self, letter):
